@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "configure" ]; then
+
+	# Create the "tilestream" user
+	if ! getent passwd mapbox > /dev/null; then
+		adduser --quiet --system --group --home /usr/share/mapbox \
+			--gecos "MapBox system user" \
+			mapbox
+	fi
+
+	# Create files common to "tilestream" which need to be owned by the 
+        # "tilestream" user
+	install --owner mapbox --group mapbox --directory \
+        	/var/log/tilestream
+        # Ownership on tilestream home dir
+        chown mapbox:mapbox /usr/share/tilestream
+        # Create mapbox directory if doesn't already exist
+        if [ ! -d "/usr/share/mapbox" ]; then
+          install --owner mapbox --group mapbox --directory \
+                /usr/share/mapbox
+        fi
+        # start it up
+        start tilestream
+fi
+
+#DEBHELPER#
